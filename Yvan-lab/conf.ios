@@ -1,0 +1,230 @@
+# 10.FLOOR.VLAN.0 /24
+
+Vlan 10 name Orange
+Vlan 11 name green
+Vlan 12 name blue
+
+# R1
+enable
+conf t
+spanning-tree mode rapid-pvst
+enable secret cisco
+ip domain-name BECODE.org
+username admin secret cisco
+crypto key generate rsa
+ip ssh version 2
+line vty 0 15
+login local
+transport input ssh
+exit
+!
+int g0/0
+no shut
+ip add 192.0.2.2 255.255.255.252
+ip nat outside
+int g0/1
+no shut
+ip add 10.0.0.1 255.255.255.252
+ip nat inside
+exit
+!
+ip access-list standard NAT
+permit 10.0.0.0 0.0.0.3
+permit 10.0.1.0 0.0.0.255
+permit 10.1.10.0 0.0.0.255
+permit 10.1.11.0 0.0.0.255
+permit 10.1.12.0 0.0.0.255
+exit
+!
+ip nat inside source list NAT interface g0/0 overload
+!
+ip route 0.0.0.0 0.0.0.0 g0/0
+!
+router ospf 10
+router-id 1.1.1.1
+auto-cost reference-bandwidth 1000
+default-information originate
+network 192.0.2.0 0.0.0.3 area 0
+network 10.0.0.0 0.0.0.3 area 0
+!
+
+# Vlan's config
+vlan 10
+name Orange
+vlan 11
+name Green
+vlan 12
+name Blue
+
+# MLS1
+enable
+conf t
+!
+enable secret cisco
+ip domain-name BECODE.org
+username admin secret cisco
+crypto key generate rsa
+ip ssh version 2
+line vty 0 15
+login local
+transport input ssh
+exit
+!
+ip routing
+!
+spanning-tree mode rapid-pvst
+spanning-tree vlan 1,10,11,12 root primary
+!
+int g0/1
+no switchport
+no shut
+ip add 10.0.0.2 255.255.255.252
+exit
+!
+ip dhcp excluded-address 10.1.10.1 10.1.10.10
+ip dhcp pool ORANGE
+network 10.1.10.0 255.255.255.0
+default-router 10.1.10.1
+exit
+!
+ip dhcp excluded-address 10.1.11.1 10.1.11.10
+ip dhcp pool GREEN
+network 10.1.11.0 255.255.255.0
+default-router 10.1.11.1
+exit
+!
+ip dhcp excluded-address 10.1.12.1 10.1.12.10
+ip dhcp pool BLUE
+network 10.1.12.0 255.255.255.0
+default-router 10.1.12.1
+!
+vlan 10
+name Orange
+vlan 11
+name Green
+vlan 12
+name Blue
+exit
+!
+int vlan 1
+ip add 10.0.1.1 255.255.255.0
+no shut
+int vlan 10
+ip add 10.1.10.1 255.255.255.0
+no shut
+int vlan 11
+ip add 10.1.11.1 255.255.255.0
+no shut
+int vlan 12
+ip add 10.1.12.1 255.255.255.0
+no shut
+exit
+!
+int f0/1
+switchport mode trunk
+switchport trunk allowed vlan 1,10,11,12
+exit
+int f0/2
+switchport mode trunk
+switchport trunk allowed vlan 1,10,11,12
+exit
+!
+router ospf 10
+router-id 2.2.2.2
+auto-cost reference-bandwidth 1000
+network 10.0.0.0 0.0.0.3 area 0
+network 10.1.10.0 0.0.0.255 area 0
+network 10.1.11.0 0.0.0.255 area 0
+network 10.1.12.0 0.0.0.255 area 0
+!
+
+#S1
+enable
+conf t
+spanning-tree mode rapid-pvst
+enable secret cisco
+ip domain-name BECODE.org
+username admin secret cisco
+crypto key generate rsa
+ip ssh version 2
+line vty 0 15
+login local
+transport input ssh
+exit
+!
+ip default-gateway 10.0.1.1
+!
+int vlan 1
+ip add 10.0.1.2 255.255.255.0
+no shut
+exit
+!
+vlan 10
+name Orange
+vlan 11
+name Green
+vlan 12
+name Blue
+exit
+!
+int f0/24
+switchport mode trunk
+switchport trunk allowed vlan 1,10,11,12
+!
+int range f0/1 - 10
+switchport mode access
+switchport access vlan 10
+exit
+!
+int range f0/11 - 19
+switchport mode access
+switchport access vlan 11
+exit
+!
+
+#S2
+enable
+conf t
+!
+spanning-tree mode rapid-pvst
+enable secret cisco
+ip domain-name BECODE.org
+username admin secret cisco
+crypto key generate rsa
+ip ssh version 2
+line vty 0 15
+login local
+transport input ssh
+exit
+!
+ip default-gateway 10.1.1.1
+!
+int vlan 1
+ip add 10.0.1.3 255.255.255.0
+no shut
+exit
+!
+vlan 10
+name Orange
+vlan 11
+name Green
+vlan 12
+name Blue
+exit
+!
+int f0/24
+switchport mode trunk
+switchport trunk allowed vlan 1,10,11,12
+!
+int range f0/1 - 10
+switchport mode access
+switchport access vlan 10
+exit
+!
+int range f0/11 - 19
+switchport mode access
+switchport access vlan 12
+exit
+!
+
+

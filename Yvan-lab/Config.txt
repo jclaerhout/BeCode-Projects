@@ -1,0 +1,31 @@
+PROJECT COLORED CISCO NETWORK - BECODE DEC 2024
+Please create a network in different steps.
+I will define the step one by one.
+
+STEP 1
+The network uses two racks with four devices: two 2960 access switches, one 3560 multilayer switch and one 1941 IOS router.
+A - Give all device a useful name
+B - Give all devices a relevant name
+C - The management interfaces are in VLAN 1. The subnet related to VLAN 1 is 10.0.1.0/24
+D - Make sure that all network devices are reachable with the aid of SSH. The domain is BECODE.ORG
+
+STEP 2
+Configure VLANs on the multilayer and access switches
+A - Every switch needs to know three extra VLANS. Every VLAN has a name referring to a color. VLAN 10 has the name ORANGE , VLAN 11 has the name GREEN and  VLAN 12 has the name BLUE.
+B - The multilayer switch is going to be the default gateway for all the VLAN subnets and will perform inter VLAN routing. The subnet for the ORANGE group is 10.1.10.0/24; for the GREEN group it is 10.1.11.0/24; for the BLUE group it is 10.1.12.0/24.
+C - The multilayer switch will be providing dynamic addressing to all VLANs.
+D - The vlan ORANGE is assigned to the ports 1 to 10 of all access switches; the vlan is only assigned ports 11 to 19 on the first switch; the VLAN BLUE is assigend ports 11 to 19 on the second switch.
+E - The ports connecting the access switches to the multilayer switch must be TRUNK ports allowing all VLANs.
+
+STEP 3
+Make sure that the multilayer switch performs intervlan routing and will learn the path to the internet from its neighboring internet router.
+A - Configure the multilayer switch to perform routing between all VLANS
+B - Create a layer 3 link between the multilayer switch and the router using subnet 10.0.0.0/30
+
+STEP 4
+Configure the internet router to provide necessary service for the internal end devices
+A - The router is internally connected to the multilayer switch using the subnet 10.0.0.0/30.
+B - The external interface 0/0 has the IP address 192.0.2.2/30 .
+C - The router and multilayer switch use OSPF the exchange routing information.
+D - The router needs to be configure with NAT to allow internal devices to access the internet.
+E - The router needs to share the route to the internet with the multilayer switch/
